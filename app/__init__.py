@@ -1,25 +1,35 @@
-from flask import Flask
-from flask_cors import CORS
-from flask_sqlalchemy import SQLAlchemy
+# app/__init__.py
 import os
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS
 
 db = SQLAlchemy()
 
 def create_app():
     app = Flask(__name__)
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///orders.db')
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    CORS(app)
 
-    CORS(app, resources={r"*": {"origins": "*"}})
+    # Caminho absoluto seguro para o banco
+    db_path = os.environ.get("DB_PATH", "/app/data/orders.db")
+    os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+    app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{db_path}"
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
     db.init_app(app)
 
-    from .routes import bp as api_bp
-    app.register_blueprint(api_bp)
+    # Importa modelos e cria tabelas
+    from . import models
+    from .routes import bp as routes_bp
+    app.register_blueprint(routes_bp)
 
     with app.app_context():
         db.create_all()
 
+    @app.get("/health")
+    def health():
+        return {"status": "ok"}
+
     return app
 
-app = create_app()
