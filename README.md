@@ -55,8 +55,7 @@ A API implementa um CRUD completo de pedidos com suporte a:
 ### Passos (via Docker)
 1. Clone o repositório:
    ```bash
-   git clone https://github.com/seu-usuario/online-shop.git
-   cd online-shop/purchase-api-backend
+   git clone https://github.com/albuquerque-raphael/purchase-api-backend.git
 
 2. Construa e suba o container:
 
